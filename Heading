@@ -1,0 +1,45 @@
+import subprocess
+from math import atan
+
+# Obtaining output from LORA Network
+p = subprocess.Popen(['sudo', 'mosquitto_sub', '-t', 'application/7/device/ac1f09fffe0036f7/#', '-t', 'application/7/device/ac1f09fffe00371d/#', '-v'], stdout=subprocess.PIPE) #device 2 and 3
+
+for row in iter(p.stdout.readline, ''): # Reading the data
+    x = row.rstrip() # Removes trailing chars
+    data = x.decode("utf-8") # Standard to use for character. y holds useful data
+
+    if data[21:37] == 'ac1f09fffe00371d': # ID for device (Device Number 3)
+        data = data.split(',') # Splits y into a list a strings with ',' as a separator
+        data = data[30:] # Extracting the magnetometer data from the list
+        data = ' '.join(data) # Creating a string out of the list
+        data = data.split(':"') # Splitting the string again
+        data.pop(0) # Deleting the first item as it is now junk
+        for i in range(len(data)): # Parsing the numbers so that only they are left and then converting them to float
+            data[i] = data[i].split('"')[0]
+            data[i] = float(data[i].split('μ')[0])
+
+        #print(data) # Data is in [x, y, z] format as a list
+        heading = atan(data[1]/data[0]) * 100 # Idea from StackOverflow
+        #if heading is negative, then need to convert to positive degrees
+        if heading1 < 0:
+            heading1 = heading1 + 360
+
+        print("heading 1: ", heading1)
+
+    if data[21:37] == 'ac1f09fffe0036f7': # Device Number 2
+        data = data.split(',') # Splits y into a list a strings with ',' as a separator
+        data = data[30:] # Extracting the magnetometer data from the list
+        data = ' '.join(data) # Creating a string out of the list
+        data = data.split(':"') # Splitting the string again
+        data.pop(0) # Deleting the first item as it is now junk
+        for i in range(len(data)): # Parsing the numbers so that only they are left and then converting them to float
+            data[i] = data[i].split('"')[0]
+            data[i] = float(data[i].split('μ')[0])
+
+        #print(data) # Data is in [x, y, z] format as a list
+        heading2 = atan(data[1]/data[0]) * 100 # Idea from StackOverflow
+        #if heading is negative then need to convert to positive degrees
+        if heading2 < 0:
+            heading2 = heading2 + 360
+
+        print("heading 2: ", heading2)
